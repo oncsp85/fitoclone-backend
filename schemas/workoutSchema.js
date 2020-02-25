@@ -2,37 +2,37 @@ const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema(
   {
-    date: Date,
+    workout_id: Number,
+    // ISO 8601 formatted string (I think, might have to change back to Date)
+    date: {
+      $date: String
+    },
     exercises: [
       {
-        type: String,
+        exercise_id: Number,
+        type: String,  // Exercise type, e.g. cardio/weights/bodyweight
         name: String,
         sets: [
           {
-            // Useful for ordering, will be needed when importing from Fitocracy
-            id: Number,
+            set_id: Number,
+            set_comment: String,
+            pr: Boolean,
 
             // Weight-lifting specific properties
             weight: { value: Number, unit: String },
             reps: Number,
             rpe: Number,
             warmup: Boolean,
-            
+              
             // Cardio specific properties
-            distance: { length: Number, unit: String },
-            time: Date,
+            distance: { value: Number, unit: String },
+            time: Number,  // storing time in seconds
             avhr: Number
           }
         ]
       }
     ],
-    comments: [ 
-      { 
-        comment: String, 
-        userid: mongoose.Schema.ObjectId, 
-        date: Date 
-      } 
-    ]
+    workout_comments: String
   }, { typeKey: "_type" } // to avoid a clash with the "type" property
 );
 
