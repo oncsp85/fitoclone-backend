@@ -8,6 +8,8 @@ app.use((req, res, next) => {
   next();
 });
 
+
+// CONNECT TO DB
 mongoose.connect('mongodb://localhost/fitoclone', 
   { 
     useNewUrlParser: true, 
@@ -20,12 +22,18 @@ db.once('open', function() {
   console.log('Connected to the database');
 });
 
-app.get('/', (req, res) => {
+
+// READ WORKOUTS ROUTE
+app.get('/workouts', (req, res) => {
+  const { month, year } = req.query;
+  const nextMonth = 
+    month === "12" ? "01" : String(Number(month) + 1).padStart(2, "0");
+  const nextYear = nextMonth === "01" ? String(Number(year) + 1) : String(year);
   workoutModel.find(
     { "date": 
       { 
-        "$gte": new Date("2020-02-01"), 
-        "$lte": new Date()
+        "$gte": new Date(`${year}-${month}-01`), 
+        "$lt": new Date(`${nextYear}-${nextMonth}-01`)
       }
     }, 
     null, 
@@ -39,6 +47,7 @@ app.get('/', (req, res) => {
     console.log(err);
   });
 });
+
 
 const port = 3001;
 app.listen(port, () => console.log(`App is listening on port ${port}`));
