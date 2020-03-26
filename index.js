@@ -31,23 +31,31 @@ db.once('open', function() {
 
 // READ WORKOUTS ROUTE
 app.get('/workouts', (req, res) => {
-  const { month, year } = req.query;
-  const nextMonth = 
-    month === "12" ? "01" : String(Number(month) + 1).padStart(2, "0");
-  const nextYear = nextMonth === "01" ? String(Number(year) + 1) : String(year);
-  
-  workoutModel.find(
-    { "date": 
-      { 
-        "$gte": new Date(`${year}-${month}-01`), 
-        "$lt": new Date(`${nextYear}-${nextMonth}-01`)
-      }
-    }, 
-    null, 
-    { sort: {date: -1} }
-  )
-  .then(workouts => {
-    res.json(workouts);
+  const { day, month, year } = req.query;
+  let query;
+
+  // If day hasn't been specified, return all workouts for the month
+  if (!day) {
+    const nextMonth = 
+      month === "12" ? "01" : String(Number(month) + 1).padStart(2, "0");
+    const nextYear = nextMonth === "01" ? String(Number(year) + 1) : String(year);
+
+    query = { 
+      "date": 
+        { 
+          "$gte": new Date(`${year}-${month}-01`), 
+          "$lt": new Date(`${nextYear}-${nextMonth}-01`)
+        }
+    };
+  } 
+  // If day has been specified, return all workouts for that day
+  else {
+    query = { date: new Date(`${year}-${month}-${day}`) };
+  }
+    
+  workoutModel.find(query, null, { sort: {date: -1} })
+    .then(workouts => {
+      res.json(workouts);
   })
   .catch(err => {
     console.log("Unable to read from DB")
