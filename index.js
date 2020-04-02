@@ -31,7 +31,8 @@ db.once('open', function() {
 
 // READ WORKOUTS ROUTE
 app.get('/workouts', (req, res) => {
-  const { day, month, year } = req.query;
+  let { day, month, year } = req.query;
+  month = month.padStart(2, "0");
   let query;
 
   // If day hasn't been specified, return all workouts for the month
@@ -50,6 +51,7 @@ app.get('/workouts', (req, res) => {
   } 
   // If day has been specified, return all workouts for that day
   else {
+    day = day.padStart(2, "0");
     query = { date: new Date(`${year}-${month}-${day}`) };
   }
     
