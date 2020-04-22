@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Headers", "content-type");
+  res.header("Access-Control-Allow-Methods", "POST, PUT, GET");
   next();
 });
 
@@ -72,6 +73,17 @@ app.post('/workouts', (req, res) => {
     .then(() => res.json("New workout created!"))
     .catch(err => {
       console.log("Unable to add workout to database");
+      console.log(err);
+    });
+});
+
+
+// UPDATE WORKOUT ROUTE
+app.put('/workouts/:id', (req, res) => {
+  workoutModel.updateOne({ _id: req.body._id }, req.body)
+    .then(() => res.json(`Workout ${req.body._id} updated!`))
+    .catch(err => {
+      console.log(`Unable to update workout ${req.body._id}`);
       console.log(err);
     });
 });
