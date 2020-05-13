@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Headers", "content-type");
-  res.header("Access-Control-Allow-Methods", "POST, PUT, GET");
+  res.header("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE");
   next();
 });
 
@@ -80,12 +80,23 @@ app.post('/workouts', (req, res) => {
 
 // UPDATE WORKOUT ROUTE
 app.put('/workouts/:id', (req, res) => {
-  workoutModel.updateOne({ _id: req.body._id }, req.body)
+  workoutModel.updateOne({ _id: req.params.id }, req.body)
     .then(() => res.json(`Workout ${req.body._id} updated!`))
     .catch(err => {
       console.log(`Unable to update workout ${req.body._id}`);
       console.log(err);
     });
+});
+
+
+// DELETE WORKOUT ROUTE
+app.delete('/workouts/:id', (req, res) => {
+  workoutModel.deleteOne({ _id: req.params.id })
+    .then(() => res.json(`Workout ${req.params.id} deleted!`))
+    .catch(err => {
+      console.log(`Unable to delete workout ${req.params.id}`);
+      console.log(err);
+  });
 });
 
 
