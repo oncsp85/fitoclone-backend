@@ -33,27 +33,47 @@ db.once('open', function() {
 // READ WORKOUTS ROUTE
 app.get('/workouts', (req, res) => {
   let { day, month, year } = req.query;
-  month = month.padStart(2, "0");
   let query;
 
-  // If day hasn't been specified, return all workouts for the month
-  if (!day) {
-    const nextMonth = 
-      month === "12" ? "01" : String(Number(month) + 1).padStart(2, "0");
-    const nextYear = nextMonth === "01" ? String(Number(year) + 1) : String(year);
+  // If day has been specified, return all workouts for that day
+  if (day) {
+    day = day.padStart(2, "0");
+    month = month.padStart(2, "0");
+    query = { date: new Date(`${year}-${month}-${day}`) };
+  } 
+  // If month has been specified, return all workouts for that month
+  else if (month) {
+    // Need to know what date the following month is
+    month = month.padStart(2, "0");
+    const thisMonth = new Date(`${year}-${month}-01`);
+    const nextMonth = new Date(thisMonth); // copy of thisMonth
+    nextMonth.setMonth(nextMonth.getMonth() + 1); // advance by 1 month
 
     query = { 
       "date": 
         { 
-          "$gte": new Date(`${year}-${month}-01`), 
-          "$lt": new Date(`${nextYear}-${nextMonth}-01`)
+          "$gte": thisMonth, 
+          "$lt": nextMonth
         }
     };
   } 
-  // If day has been specified, return all workouts for that day
+  // If year has been specified, return all workouts for that year
+  else if (year) {
+    const thisYear = new Date(`${year}-01-01`);
+    const nextYear = new Date(thisYear);
+    nextYear.setFullYear(nextYear.getFullYear + 1);
+    query = { 
+      "date": 
+        { 
+          "$gte": thisYear, 
+          "$lt": nextYear
+        }
+    };
+  }
+
+  // Else return all workouts
   else {
-    day = day.padStart(2, "0");
-    query = { date: new Date(`${year}-${month}-${day}`) };
+    query = {};
   }
     
   workoutModel.find(query, null, { sort: {date: -1} })
